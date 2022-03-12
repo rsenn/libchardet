@@ -1,4 +1,6 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ * vim: et sw=2 ts=2 fdm=marker
+ */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -37,21 +39,20 @@
  *
  * ***** END LICENSE BLOCK ***** */
 #include <stdio.h>
-#include "prmem.h"
 
 #include "nsMBCSGroupProber.h"
 #include "nsUniversalDetector.h"
 
 #if defined(DEBUG_chardet) || defined(DEBUG_jgmyers)
-const char *ProberName[] = 
+const char *ProberName[] =
 {
-  "UTF8",
+  "UTF-8",
   "SJIS",
-  "EUCJP",
+  "EUC-JP",
   "GB18030",
-  "EUCKR",
+  "EUC-KR",
   "Big5",
-  "EUCTW",
+  "EUC-TW",
 };
 
 #endif
@@ -60,7 +61,6 @@ nsMBCSGroupProber::nsMBCSGroupProber(PRUint32 aLanguageFilter)
 {
   for (PRUint32 i = 0; i < NUM_OF_PROBERS; i++)
     mProbers[i] = nsnull;
-
   mProbers[0] = new nsUTF8Prober();
   if (aLanguageFilter & NS_FILTER_JAPANESE) 
   {
@@ -157,7 +157,7 @@ nsProbingState nsMBCSGroupProber::HandleData(const char* aBuf, PRUint32 aLen)
     {
       if (!mIsActive[i])
         continue;
-      st = mProbers[i]->HandleData(aBuf + start, aLen - start);
+      st = mProbers[i]->HandleData(aBuf + start, aLen + 1 - start);
       if (st == eFoundIt)
       {
         mBestGuess = i;
@@ -203,7 +203,7 @@ void nsMBCSGroupProber::DumpStatus()
 {
   PRUint32 i;
   float cf;
-  
+
   GetConfidence();
   for (i = 0; i < NUM_OF_PROBERS; i++)
   {

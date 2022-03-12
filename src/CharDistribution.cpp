@@ -1,4 +1,6 @@
-/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ * vim: et sw=2 ts=2 fdm=marker
+ */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -37,22 +39,20 @@
 
 #include "CharDistribution.h"
 
-#include "JISFreq.tab"
-#include "Big5Freq.tab"
-#include "EUCKRFreq.tab"
-#include "EUCTWFreq.tab"
-#include "GB2312Freq.tab"
+#include "tables/JISFreq.tab"
+#include "tables/Big5Freq.tab"
+#include "tables/EUCKRFreq.tab"
+#include "tables/EUCTWFreq.tab"
+#include "tables/GB2312Freq.tab"
 
 #define SURE_YES 0.99f
 #define SURE_NO  0.01f
 
 //return confidence base on received data
-float CharDistributionAnalysis::GetConfidence(void)
-{ 
-  //if we didn't receive any character in our consideration range, or the
-  // number of frequent characters is below the minimum threshold, return
-  // negative answer
-  if (mTotalChars <= 0 || mFreqChars <= mDataThreshold)
+float CharDistributionAnalysis::GetConfidence()
+{
+  //if we didn't receive any character in our consideration range, return negative answer
+  if (mTotalChars <= 0)
     return SURE_NO;
 
   if (mTotalChars != mFreqChars) {

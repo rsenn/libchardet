@@ -1,73 +1,70 @@
-%define _tmppath %{_topdir}/BUILDROOT
-%define prefix_flag	%(if test -z $prefix ; then echo 0; else echo 1; fi;)
+%define _unpackaged_files_terminate_build 0
 
-Name: libchardet
-Version: @VERSION@
+Summary: Mozilla Universal Chardet library
+Summary(ko): 모질라 유니버샬 캐릭터셋 디텍트 라이브러리
+Name: @PACKAGE_NAME@
+Version: @PACKAGE_VERSION@
 Release: 1
+Epoch: 1
+License: MPL
+Group: System Environment/Libraries
+Source0: https://github.com/Joungkyun/libchardet/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+URL: https://github.com/Joungkyun/libchardet
+BuildRequires: libstdc++-devel
+Requires: libstdc++
 
-Summary: a library for charset detector
-License: GPLv3
-Group: Application/Systems
-Url: http://www.mozilla.org/projects/intl/chardet.html
-Source0: %{name}-%{version}.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id} -u -n)
-%if %{prefix_flag}
-Prefix: %_prefix
-%endif
-
-%define PACKAGE_HOME %{_datadir}/@PACKAGE@
-
-Packager: Cnangel <cnangel@gmail.com>
+BuildRoot:%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %description
-%{name}(Charset detector) in Mozilla is a XPCOM component which receive bytes as incoming data and base on the bytes of data "guess" what the charset of the data is and report it to the caller.
+libchardet provides an interface to Mozilla's universal charset detector,
+which detects the charset used to encode data.
 
 %package devel
-Summary: Header files, libraries for %{name}.
-Group: %{group}
-Requires: %{name} = %{version}-%{release} 
+Summary: Header and object files for development using libchardet
+Summary(ko): libchardet 를 이용하여 개발하기 위한 header 파일과 목적 파일들
+Group: System Environment/Libraries
+Requires: %{name} = %{epoch}:%{version}-%{release}, libstdc++-devel
 
 %description devel
-This package contains the header files and static libraries for %{name}.
-If you like to develop programs using %{name}, you will need to install %{name}-devel.
+The libchardet-devel package contains the header and object files necessary
+for developing programs which use the libchardet libraries.
 
 %prep
+[ "%{buildroot}" != "/" ] && %{__rm} -rf %{buildroot}
 %setup -q
 
 %build
 %configure
-make %{?_smp_mflags}
-make check
+
+%{__make} %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%makeinstall
+%{__make} DESTDIR=%{buildroot} install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf %{buildroot}
 
 %post
-if test "x$RPM_INSTALL_PREFIX0" != "x" ; then
-    %{__perl} -pi -e"s|/usr|$RPM_INSTALL_PREFIX0|" $RPM_INSTALL_PREFIX0/%{_lib}/pkgconfig/libcharset.pc
-    %{__perl} -pi -e"s|^libdir='[^\']*'|libdir='$RPM_INSTALL_PREFIX0/%{_lib}'|" $RPM_INSTALL_PREFIX0/%{_lib}/libchardet.la
-fi
+/sbin/ldconfig
+
+%postun
+/sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
-%{_libdir}/*.so*
-%{_bindir}
+%defattr(0755,root,root)
+%{_libdir}/%{name}.so.*
 
 %files devel
-%defattr(-,root,root,-)
-%{_includedir}
+%defattr(0644,root,root,0755)
+%attr(0755,root,root) %{_bindir}/chardet-config
+%{_libdir}/*.so
 %{_libdir}/*.a
 %{_libdir}/*.la
-%{_libdir}/pkgconfig/libchardet.pc
+%{_libdir}/pkgconfig/chardet.pc
+%{_includedir}/chardet/*.h
+%{_mandir}/man3/*
+%{_mandir}/ko/man3/*
 
 %changelog
-* Thu Mar 03 2011 Cnangel <cnangel@gmail.com> 0.9.0-1
-- add pc file.
-* Tue Mar 23 2010 Cnangel <cnangel@gmail.com> 0.8.0-1
-- create spec file 
-
-# -fin-
+* @PACKAGE_DATE@ JoungKyun.Kim <hostmaster@oops.org> 1:@PACKAGE_VERSION@-1
+- packaged @PACKAGE_VERSION@

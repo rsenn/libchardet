@@ -1,4 +1,6 @@
-/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+ * vim: et sw=2 ts=2 fdm=marker
+ */
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
@@ -42,7 +44,7 @@
 #include "nsCodingStateMachine.h"
 #include "CharDistribution.h"
 
-// We use gb18030 to replace gb2312, because 18030 is a superset. 
+// We use gb18030 to replace gb2312, because 18030 is a superset.
 
 class nsGB18030Prober: public nsCharSetProber {
 public:
@@ -50,17 +52,17 @@ public:
     :mIsPreferredLanguage(aIsPreferredLanguage)
   {mCodingSM = new nsCodingStateMachine(&GB18030SMModel);
     Reset();}
-  virtual ~nsGB18030Prober(void){delete mCodingSM;}
+  virtual ~nsGB18030Prober(void){delete mCodingSM;};
   nsProbingState HandleData(const char* aBuf, PRUint32 aLen);
-  const char* GetCharSetName() {return "gb18030";}
-  nsProbingState GetState(void) {return mState;}
+  const char* GetCharSetName() {return "GB18030";};
+  nsProbingState GetState(void) {return mState;};
   void      Reset(void);
   float     GetConfidence(void);
-  void      SetOpion() {}
+  void      SetOpion() {};
 
 protected:
   void      GetDistribution(PRUint32 aCharLen, const char* aStr);
-  
+
   nsCodingStateMachine* mCodingSM;
   nsProbingState mState;
 
@@ -68,9 +70,7 @@ protected:
   GB2312DistributionAnalysis mDistributionAnalyser;
   char mLastChar[2];
   PRBool mIsPreferredLanguage;
-
 };
 
 
 #endif /* nsGB2312Prober_h__ */
-

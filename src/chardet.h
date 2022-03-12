@@ -11,16 +11,10 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Mozilla Universal charset detector code.
- *
- * The Initial Developer of the Original Code is
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 2001
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *          Kohei TAKETA <k-tak@void.in>
- *          Jim Huang <jserv.tw@gmail.com>
+ * Mozilla's universal charset detector C/C++ Wrapping API
+ *      Writer(s) :
+ *          Detect class by John Gardiner Myers <jgmyers@proofpoint.com>
+ *          C wrapping API by JoungKyun.Kim <http://oops.org>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -35,94 +29,95 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-#ifndef ___CHARDET_H___
-#define ___CHARDET_H___
 
-#ifdef _WIN32
-#   ifdef DLL_EXPORTS
-#	define CHARDET_IMEXPORT extern _declspec(dllexport)
-#   else
-#	define CHARDET_IMEXPORT extern _declspec(dllimport)
-#   endif
+#ifndef CHARDET_H
+#define CHARDET_H
+
+/*
+#if defined _WIN32 || defined __CYGWIN__
+	#define CHARDET_API
 #else
-#   define CHARDET_IMEXPORT extern __attribute__ ((visibility("default")))
+	#if defined(__GNUC__) && __GNUC__ >= 4
+		#define CHARDET_API __attribute__ ((visibility("default")))
+	#else
+		#define CHARDET_API
+	#endif
+#endif
+*/
+
+
+#ifdef HAVE_CONFIG_H
+#include <chardet-config.h>
 #endif
 
-#include <stddef.h>
+#if defined _WIN32 || defined __CYGWIN__
+	#ifdef HAVE_DLL_EXPORT
+		#define CHARDET_API __declspec(dllexport)
+	#else
+		#define CHARDET_API __declspec(dllimport)
+	#endif
+#else
+	#ifdef HAVE_VISIBILITY
+		#define CHARDET_API __attribute__ ((visibility("default")))
+	#else
+		#define CHARDET_API
+	#endif
+#endif
 
-#define CHARDET_RESULT_OK		    0
-#define CHARDET_RESULT_NOMEMORY		    (-1)
-#define CHARDET_RESULT_INVALID_DETECTOR	    (-2)
+#include <version.h>
 
-#define CHARDET_MAX_ENCODING_NAME	    64
+#include <stdio.h>
+#include <string.h>
 
+#define CHARDET_OUT_OF_MEMORY -128
+#define CHARDET_MEM_ALLOCATED_FAIL -127
 
-typedef void* chardet_t;
+#define CHARDET_SUCCESS     0
+#define CHARDET_NO_RESULT   1
+#define CHARDET_NULL_OBJECT 2
+
+// whether to support detect_r and detect_handledata_r API
+#define CHARDET_BINARY_SAFE 1
+
+// whether to support bom member of DetectObj structure
+#define CHARDET_BOM_CHECK 1
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+	typedef struct Detect_t Detect;
 
-/**
- * Create an encoding detector.
- * @param pdet [out] pointer to a chardet_t variable that receives
- *             the encoding detector handle.
- * @return CHARDET_RESULT_OK if succeeded. CHARDET_RESULT_NOMEMORY otherwise.
- */
-CHARDET_IMEXPORT int chardet_create(chardet_t* pdet);
+	typedef struct DetectObject {
+		char * encoding;
+		float confidence;
+		short bom;
+	} DetectObj;
 
-/**
- * Destroy an encoding detector.
- * @param det [in] the encoding detector handle to be destroyed.
- */
-CHARDET_IMEXPORT void chardet_destroy(chardet_t det);
+	CHARDET_API char * detect_version (void);
+	CHARDET_API char * detect_uversion (void);
 
-/**
- * Feed data to an encoding detector.
- * @param det [in] the encoding detector handle
- * @param data [in] data
- * @param len [in] length of data in bytes.
- * @return CHARDET_RESULT_OK if succeeded.
- *         CHARSET_RESULT_NOMEMORY if running out of memory.
- *         CHARDET_RESULT_INVALID_DETECTOR if det was invalid.
- */
-CHARDET_IMEXPORT int chardet_handle_data(chardet_t det, const char* data, unsigned int len);
+	CHARDET_API DetectObj * detect_obj_init (void);
+	CHARDET_API void detect_obj_free (DetectObj **);
 
-/**
- * Notify an end of data to an encoding detctor.
- * @param det [in] the encoding detector handle
- * @return CHARDET_RESULT_OK if succeeded.
- *         CHARDET_RESULT_INVALID_DETECTOR if det was invalid.
- */
-CHARDET_IMEXPORT int chardet_data_end(chardet_t det);
-
-/**
- * Reset an encoding detector.
- * @param det [in] the encoding detector handle
- * @return CHARDET_RESULT_OK if succeeded.
- *         CHARDET_RESULT_INVALID_DETECTOR if det was invalid.
- */
-CHARDET_IMEXPORT int chardet_reset(chardet_t det);
-
-/**
- * Get the name of encoding that was detected.
- * @param det [in] the encoding detector handle
- * @param namebuf [in/out] pointer to a buffer that receives the name of
- *                detected encoding. A valid encoding name or an empty string
- *                will be written to namebuf. If an empty strng was written,
- *                the detector could not detect any encoding.
- *                Written strings will always be NULL-terminated.
- * @param buflen [in] length of namebuf
- * @return CHARDET_RESULT_OK if succeeded.
- *         CHARDET_RESULT_NOMEMORY if namebuf was too small to store
- *         the entire encoding name.
- *         CHARDET_RESULT_INVALID_DETECTOR if det was invalid.
- */
-CHARDET_IMEXPORT int chardet_get_charset(chardet_t det, char* namebuf, unsigned int buflen);
-
-
+	CHARDET_API Detect * detect_init (void);
+	CHARDET_API void detect_reset (Detect **);
+	CHARDET_API void detect_dataend (Detect **);
+	CHARDET_API short detect_handledata (Detect **, const char *, DetectObj **);
+	CHARDET_API short detect_handledata_r (Detect **, const char *, size_t, DetectObj **);
+	CHARDET_API void detect_destroy (Detect **);
+	CHARDET_API short detect (const char *, DetectObj **);
+	CHARDET_API short detect_r (const char *, size_t, DetectObj **);
 #ifdef __cplusplus
 };
 #endif
 
-#endif
+#endif // close define CHARDET_H
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ * vim: noet sw=4 ts=4 fdm=marker
+ * vim<600: noet sw=4 ts=4
+ */
