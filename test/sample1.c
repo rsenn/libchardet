@@ -18,20 +18,20 @@ int main (int argc, char ** argv) {
 	char *str[] = {
 		"안녕히",
 		"안녕하세요",
-		"안녕하세요 정말?",
-		"그래 이정도면 판단 될까?",
-		"좀더 길게 적어 볼까 얼마나 길게 똠방각하(CP949) 해야!",
-		"그래 그래 좀 더 길게 적어 보자 더 길게 적어 보야야 겠지...",
-		"12345 abcde"
+		"abcdef�",
+		"\x58\x58\x58\x58\x58\x58\xa4",
+    "aeoeue",
+    "\xc3\xa4\xc3\xb6\xc3\xbc",
+		"abcdef\xe9"
 	};
 
 	char *expect[] = {
 		"EUC-KR",
 		"EUC-KR",
-		"EUC-KR",
-		"EUC-KR",
-		"EUC-KR",
-		"EUC-KR",
+		"UTF-8",
+		"ASCII",
+		"ASCII",
+		"UTF-8",
 		"ASCII"
 	};
 

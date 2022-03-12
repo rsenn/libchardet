@@ -1,4 +1,4 @@
-project(libchardet CXX)
+project(libchardet C CXX)
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
 set(CHARDET_VERSION "1.0.0" CACHE STRING "libchardet version")
@@ -82,6 +82,16 @@ if(F_VISIBILITY_HIDDEN)
   set(CHARDET_COMPILE_FLAGS "-fvisibility=hidden ${CHARDET_COMPILE_FLAGS}")
 endif(F_VISIBILITY_HIDDEN)
 set_target_properties(chardet PROPERTIES COMPILE_FLAGS "${CHARDET_COMPILE_FLAGS}")
+
+
+add_executable(bom-test test/bom-test.c)
+target_link_libraries(bom-test chardet)
+
+add_executable(sample1 test/sample1.c)
+target_link_libraries(sample1 chardet)
+
+add_executable(sample test/sample.c)
+target_link_libraries(sample chardet)
 
 install(TARGETS chardet DESTINATION lib)
 install(FILES src/chardet.h DESTINATION include)
