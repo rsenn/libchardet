@@ -1,5 +1,6 @@
 # $Id: Makefile.am,v 1.0.0-0 2011/03/03 13:28:14 Cnangel Exp $
 
+#ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST = autogen.sh \
