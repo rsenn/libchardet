@@ -90,4 +90,4 @@ libchardet_la_SOURCES = CharDistribution.cpp JpCntx.cpp \
 		nsMBCSGroupProber.cpp nsMBCSSM.cpp nsSBCSGroupProber.cpp \
 		nsSBCharSetProber.cpp nsSJISProber.cpp nsUTF8Prober.cpp \
 		nsUniversalDetector.cpp chardet.cpp
-libchardet_la_CPPFLAGS = -I../include
+libchardet_la_CPPFLAGS = -I$(top_srcdir)/include
