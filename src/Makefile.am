@@ -1,4 +1,5 @@
 #Makefile.am
+AUTOMAKE_OPTIONS = subdir-objects
 AM_LDFLAGS = -fPIC
 lib_LTLIBRARIES = libchardet.la
 libchardet_la_SOURCES = CharDistribution.cpp \
