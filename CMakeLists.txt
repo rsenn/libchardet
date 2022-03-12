@@ -1,6 +1,7 @@
 project(libchardet CXX)
 
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
+set(CHARDET_VERSION "1.0.0" CACHE STRING "libchardet version")
 
 include_directories(include src ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -73,7 +74,14 @@ add_library(chardet
 	src/tables/LangCyrillicModel.cpp
 	src/tables/LangDanishModel.cpp
 )
-set_target_properties(chardet PROPERTIES SOVERSION 1.0.0)
+set_target_properties(chardet PROPERTIES SOVERSION "${CHARDET_VERSION}")
+
+set(CHARDET_COMPILE_FLAGS "-DVERSION='\"${CHARDET_VERSION}\"'")
+
 if(F_VISIBILITY_HIDDEN)
-  set_target_properties(chardet PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+  set(CHARDET_COMPILE_FLAGS "-fvisibility=hidden ${CHARDET_COMPILE_FLAGS}")
 endif(F_VISIBILITY_HIDDEN)
+set_target_properties(chardet PROPERTIES COMPILE_FLAGS "${CHARDET_COMPILE_FLAGS}")
+
+install(TARGETS chardet DESTINATION lib)
+install(FILES src/chardet.h DESTINATION include)
